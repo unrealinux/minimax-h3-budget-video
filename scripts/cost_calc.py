@@ -116,7 +116,7 @@ def build_scenarios(args):
 
 def main():
     p = argparse.ArgumentParser(description="MiniMax H3 成本计算器")
-    p.add_argument("--finals", type=int, required=True, help="最终成片条数")
+    p.add_argument("--finals", type=int, help="最终成片条数（--list 时可省略）")
     p.add_argument("--seconds", type=float, default=5, help="每条时长（秒），默认 5")
     p.add_argument("--drafts", type=int, default=0, help="480P 草稿条数，默认 0")
     p.add_argument("--upgrade", type=int, default=0, help="需要 2K 母版的条数，默认 0")
@@ -139,6 +139,8 @@ def main():
             print(f"  {k:<22} ${v}")
         return
 
+    if args.finals is None:
+        p.error("--finals 是必填项（使用 --list 时除外）")
     if args.upgrade > args.finals:
         sys.exit("--upgrade 不能大于 --finals")
     if 0 < args.drafts < args.finals:
