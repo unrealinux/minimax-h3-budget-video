@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 — 2026-10-27
+
+### 新增
+
+- `prices.json`：价格唯一来源，计算器和核验脚本都从它读取
+- `scripts/check_prices.py`：抓官方页 / fal 模型页 / Replicate，逐项对比，支持 `--update` 和 `--report`
+- `.github/workflows/price-check.yml`：每周一自动核验，有变动或解析失败自动开 issue
+- 解析测试（fixture 来自真实页面结构），测试数 23 → 34
+
+### 修复
+
+- **输入视频单价写错**：官方表格里 H3 输入视频是 ¥0.50/s（768P）、¥0.80/s（2K），此前误写成 ¥0.20/s（那其实是输入图片单价）。受影响的 `ref2v` 成本估算已更正。
+- `cost_calc.py --list` 不再要求 `--finals`
+
 ## 0.1.0 — 2026-10-27
 
 首个版本。

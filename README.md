@@ -85,29 +85,57 @@ python3 scripts/cost_calc.py --finals 30 --seconds 5 --upgrade 6 --fal-mode ref
 ```text
 .
 ├── SKILL.md                 # 主流程：认知前提 → 价格阶梯 → 流水线 → 提示词 → 常见错误
+├── prices.json              # 价格唯一来源（官方 + 第三方）
 ├── references/
 │   ├── pricing.md           # 官方 7 档价目 + fal/Replicate 对比 + 核验方法
 │   └── prompting.md         # 六段式模板 + 正反例 + 三种崩坏修复
 ├── scripts/
-│   └── cost_calc.py         # 成本计算器
-├── tests/                   # 单元测试，CI 会跑
+│   ├── cost_calc.py         # 成本计算器
+│   └── check_prices.py      # 价格核验：抓线上页面对比 prices.json
+├── tests/                   # 单元测试 + 页面解析 fixture
 ├── evals/                   # 触发与输出质量的测试用例
-└── .github/workflows/ci.yml
+└── .github/workflows/
+    ├── ci.yml               # 每次 push 跑测试
+    └── price-check.yml      # 每周一自动核验价格，有变动就开 issue
 ```
+
+## 价格核验
+
+`prices.json` 是唯一价格来源，`cost_calc.py` 从它读取。核验脚本会抓三个线上来源并逐项对比：
+
+```bash
+python3 scripts/check_prices.py            # 有变动退出码 1，抓取失败退出码 2
+python3 scripts/check_prices.py --update   # 确认后写回 prices.json
+python3 scripts/check_prices.py --report r.md
+```
+
+数据来源：
+
+| 来源 | 抓什么 |
+|---|---|
+| `platform.minimaxi.com/document/price` | 官方 7 档每秒单价、输入视频/图片单价 |
+| `fal.ai/models/*` | 页面内嵌的 `billing_unit.price` 字段（比定价页准） |
+| `replicate.com/minimax/h3` | 768P / 2K 每秒单价 |
+
+GitHub Actions 每周一自动跑一次。发现变动会开一个 issue 并附上差异表；解析失败会开另一个 issue 提醒你页面结构变了。确认后跑 `--update` 提交即可。
+
+这套机制存在的意义：fal 的定价页和实际计费字段曾经就不一致（$0.03 vs $0.05），只信定价页会算错预算。
 
 ## 价格时效性
 
-**价格数据快照：2026-10-27。** MiniMax 调价比较频繁，正式采购前请按 `references/pricing.md` 末尾的方法核验三处：
+**价格数据快照：2026-10-27。** MiniMax 调价比较频繁，正式采购前请先跑一次核验：
 
-1. 官方 `platform.minimaxi.com/document/price`
-2. fal 模型页源码里的 `billing_unit` 字段（定价页和实际计费字段已知存在不一致）
-3. 跑一条 5 秒请求，用账单反推
+```bash
+python3 scripts/check_prices.py
+```
 
-三处不一致时以**实测账单**为准。
+脚本会抓官方页、fal 模型页和 Replicate，逐项对比 `prices.json`。如果输出「全部一致」就可以直接用；有差异时先看差异表，确认后 `--update` 并提交。
+
+三处来源不一致时以**实测账单**为准（跑一条 5 秒请求反推单价）。
 
 ## Roadmap
 
-- [ ] 价格自动核验脚本（抓官方页 + fal 计费字段，输出 diff）
+- [x] 价格自动核验脚本（抓官方页 + fal 计费字段，输出 diff）
 - [ ] fal / Replicate 最小调用示例
 - [ ] 扩展到 FLUX 3 Max / Wan 3.0 的横向选型
 - [ ] 触发描述优化（避免只问价格也被拉进来）

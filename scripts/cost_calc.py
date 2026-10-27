@@ -12,30 +12,25 @@
 import argparse
 import json
 import sys
+from pathlib import Path
+
+# 价格唯一来源：仓库根目录的 prices.json。
+# 改动价格请改 JSON（或用 scripts/check_prices.py --update），不要改这里。
+PRICE_FILE = Path(__file__).resolve().parents[1] / "prices.json"
+
+
+def _load_prices():
+    if not PRICE_FILE.exists():
+        sys.exit(
+            f"找不到 {PRICE_FILE}。\n"
+            "prices.json 是价格唯一来源，请连同 scripts/ 一起复制。"
+        )
+    data = json.loads(PRICE_FILE.read_text(encoding="utf-8"))
+    return data["official_cny"], data["third_party_usd"], data["usd_to_cny"]
+
 
 # 人民币 / 秒
-PRICES = {
-    "lite_480": 0.16,
-    "lite_768": 0.26,
-    "max_480": 0.33,
-    "highspeed_768": 0.40,
-    "h3_768": 0.50,
-    "h3_2k": 0.80,
-    "regen_2k": 0.30,
-    "input_video_h3": 0.20,
-    "input_video_max_768": 0.97,
-}
-
-# 美元 / 秒
-PRICES_USD = {
-    "fal_turbo": 0.025,
-    "fal_turbo_ref": 0.05,
-    "fal_h3": 0.05,
-    "replicate_768": 0.08,
-    "replicate_2k": 0.13,
-}
-
-USD_TO_CNY = 7.15
+PRICES, PRICES_USD, USD_TO_CNY = _load_prices()
 
 
 def cny(usd):

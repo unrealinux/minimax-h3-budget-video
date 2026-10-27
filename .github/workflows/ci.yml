@@ -26,3 +26,4 @@ jobs:
           python scripts/cost_calc.py --finals 20 --seconds 5 --upgrade 3 --drafts 30
           python scripts/cost_calc.py --finals 10 --seconds 5 --json > /dev/null
           python scripts/cost_calc.py --list
+          python scripts/check_prices.py --help > /dev/null

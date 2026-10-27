@@ -1,0 +1,22 @@
+{
+  "updated": "2026-10-27",
+  "usd_to_cny": 7.15,
+  "official_cny": {
+    "lite_480": 0.16,
+    "lite_768": 0.26,
+    "max_480": 0.33,
+    "highspeed_768": 0.4,
+    "h3_768": 0.5,
+    "h3_2k": 0.8,
+    "regen_2k": 0.3,
+    "input_video_h3": 0.5,
+    "input_video_max_768": 0.97
+  },
+  "third_party_usd": {
+    "fal_turbo": 0.025,
+    "fal_turbo_ref": 0.05,
+    "fal_h3": 0.05,
+    "replicate_768": 0.08,
+    "replicate_2k": 0.13
+  }
+}

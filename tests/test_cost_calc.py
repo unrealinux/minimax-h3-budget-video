@@ -107,13 +107,14 @@ class TestInputVideo(unittest.TestCase):
         _, with_input, input_cost = cost_calc.build_scenarios(
             args(input_video_seconds=3, input_model="h3")
         )
-        self.assertAlmostEqual(input_cost, 3 * 0.20 * 10)
+        # 官方价目表：H3 768P 输入视频 ¥0.50/s（不是 ¥0.20，那是图片单价）
+        self.assertAlmostEqual(input_cost, 3 * 0.50 * 10)
         self.assertAlmostEqual(with_input - baseline, input_cost)
 
     def test_max_input_video_is_much_more_expensive(self):
         _, _, h3_cost = cost_calc.build_scenarios(args(input_video_seconds=3, input_model="h3"))
         _, _, max_cost = cost_calc.build_scenarios(args(input_video_seconds=3, input_model="max"))
-        self.assertGreater(max_cost, h3_cost * 4)
+        self.assertAlmostEqual(max_cost / h3_cost, 0.97 / 0.50)
 
 
 if __name__ == "__main__":
