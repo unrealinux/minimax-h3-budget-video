@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Smoke test the calculator
+        run: |
+          python scripts/cost_calc.py --finals 20 --seconds 5 --upgrade 3 --drafts 30
+          python scripts/cost_calc.py --finals 10 --seconds 5 --json > /dev/null
+          python scripts/cost_calc.py --list
